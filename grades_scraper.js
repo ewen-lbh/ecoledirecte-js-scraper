@@ -1,3 +1,12 @@
+// ==UserScript==
+// @name        ED bot
+// @namespace    https://ecoledirecte.com/*
+// @version      0.0.1
+// @description  Echoledirecte scrapper
+// @author       Mx3
+// @match        http://ecoledirecte.com/*
+// @grant        none
+// ==/UserScript==
 /*
 data[0] is subject names
 data[1] is an array of all marks, for each subject
