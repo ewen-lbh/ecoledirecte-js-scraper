@@ -154,10 +154,3 @@ function sum(input) {
 }
 
 show()
-
-/*array marks structure
-marksProto = {
-    "subject" : 'subj',
-    "marks" : [1,2,3.5,'4^5'],
-    "coef" : 5
-}*/
