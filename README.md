@@ -12,6 +12,6 @@ is currently capable of scraping the "Notes" tab, getting subjects, grades, weig
 * `data[4]` is the global average
 * `data[5]` is wether the subject is a subsubject, and its parent.
 ## Usage
-I'm planning on a browser extension release, but if you want to test it out, open up DevTools (Ctrl+Shift+I) and paste the whole script in the Console command field, then press enter. (In a ecoledirecte "Notes" tab, obviously)
+I'm planning on a browser extension release, but if you want to test it out, open up DevTools (Ctrl+Shift+I) and paste the whole script in the Console command field, then press enter. (In a ecoledirecte "Notes" tab, obviously. The tab's URL should look like `https://www.ecoledirecte.com/Eleves/XXXXX/Notes` where `XXXXX` are digits)
 
 You could also use a userscript extension and copy-paste the code, here's a good one for [Chrome](https://chrome.google.com/webstore/detail/user-javascript-and-css/nbhcbdghjpllgmfilhnhkllmkecfmpld) and [Firefox](https://addons.mozilla.org/fr/firefox/addon/custom-style-script).
