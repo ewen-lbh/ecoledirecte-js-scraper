@@ -1,4 +1,5 @@
 # ecoledirecte js scraper
+TODO: Redo readme (what each index represents section)
 Work in progress project to scrape content from ecoledirecte.com (a french school management system) 
 is currently capable of scraping the "Notes" tab, getting subjects, grades, weights and averages and putting them into a data array.
 ## What each index represents
