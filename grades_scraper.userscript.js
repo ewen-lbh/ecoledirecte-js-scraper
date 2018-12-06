@@ -8,48 +8,94 @@
 // @grant        none
 // ==/UserScript==
 /*
-data[0] is subject names
-data[1] is an array of all marks, for each subject
-data[10] is an array of all marks, processed, for each subject
-data[11] is an array of all marks' coefficients, for each subject
-data[2] is subject coeficients
-data[990] is subject name DOM element
-data[3] is subject averages
-data[4] is the global average
-data[5] is wether the subject is a subsubject, and its parent.
-*/
+grades.subject is subject names
+grades.subjectTeacher is subjects' teachers name
+grades.rawGrades is an array of all marks, for each subject
+grades.treatedGrades is an array of all marks, processed, for each subject
+grades.gradesWeights is an array of all marks' coefficients, for each subject
+grades.subjectWeight is subject coeficients
+grades.gradesDOMElements is subject name DOM element
+grades.subjectAvg is subject averages
+grades.globalAvg is the global average
+grades.isSubSubject is wether the subject is a subsubject, and its parent.
 
-data = []
-data[0] = []
-data[990] = []
-data[1] = []
-data[10] = []
-data[11] = []
-data[2] = []
-data[3] = []
-data[4] = []
-data[5] = []
+profile.name is the student's name
+profile.class is the student's class (NOT IMPLEMENTED)
+profile.conseilDeClasseDate is the student's conseil de classe date
+profile.nthTrimester is the grade object's trimester 
+
+*/
+profile = {
+    "name" : null,
+    "conseilDeClasseDate":null,
+    "nthTrimester":null,
+}
+grades = {
+    "subject" : null,
+    "subjectTeacher" : null,
+    "rawGrades" : null,
+    "subjectWeight" : null,
+    "subjectAvg" : null,
+    "isSubSubject" : null,
+    "treatedGrades" : null,
+    "gradesWeights" : null,
+    "gradesDOMElements" : null,
+    "globalAvg" : null
+}
+grades.subject = []
+grades.subjectTeacher = []
+grades.gradesDOMElements = []
+grades.rawGrades = []
+grades.treatedGrades = []
+grades.gradesWeights = []
+grades.subjectWeight = []
+grades.subjectAvg = []
+grades.globalAvg = []
+grades.isSubSubject = []
 subjectsE = document.querySelectorAll('td.discipline')
 subjectsE.forEach(subjectE => {
-    data[990].push(subjectE)
-    data[0].push(getSubjectName(subjectE))
-    iterator = data[990].keys()
+    grades.gradesDOMElements.push(subjectE)
+    grades.subject.push(getSubjectName(subjectE))
+    iterator = grades.gradesDOMElements.keys()
     for (let key of iterator) {
-        // console.log(data[0][key])
-        data[5][key] = getSubSubjectParent(data[990][key])
-        if (hasAnyGrades(data[990][key])) {
-            data[2][key] = getWeightFromSubjectElement(data[990][key])
-            data[1][key] = getAllGradesFromSubjectElement(data[990][key])
-            // console.log("After getAllGradesFromSubjectElement() : "+data[1][key])
-            data[10][key] = getAllTreatedGradesFromArray(data[1][key])
-            // console.log("After getAllTreatedGradesFromArray() : "+data[1][key])
-            data[11][key] = getAllGradesWeightsFromArray(data[1][key])
-            console.log("After getAllGradesWeightsFromArray() : " + data[1][key])
-            data[3][key] = getAvg(data[10][key], data[11][key])
+        grades.isSubSubject[key] = getSubSubjectParent(grades.gradesDOMElements[key])
+        if(!grades.isSubSubject[key]) {
+            grades.subjectTeacher[key] = getSubjectTeacherName(grades.gradesDOMElements[key])
+        } else {
+            grades.subjectTeacher[key] = '';
+        }
+        // console.log(grades.subject[key])
+        if (hasAnyGrades(grades.gradesDOMElements[key])) {
+            grades.subjectWeight[key] = getWeightFromSubjectElement(grades.gradesDOMElements[key])
+            grades.rawGrades[key] = getAllGradesFromSubjectElement(grades.gradesDOMElements[key])
+            // console.log("After getAllGradesFromSubjectElement() : "+grades.rawGrades[key])
+            grades.treatedGrades[key] = getAllTreatedGradesFromArray(grades.rawGrades[key])
+            // console.log("After getAllTreatedGradesFromArray() : "+grades.rawGrades[key])
+            grades.gradesWeights[key] = getAllGradesWeightsFromArray(grades.rawGrades[key])
+            // console.log("After getAllGradesWeightsFromArray() : " + grades.rawGrades[key])
+            grades.subjectAvg[key] = getAvg(grades.treatedGrades[key], grades.gradesWeights[key])
         }
     }
 });
-data[4] = getAvg(data[3], data[2])
+grades.globalAvg = getAvg(grades.subjectAvg, grades.subjectWeight)
+
+profile.name = document.querySelector('a#user-account-link').text.trim()
+profile.conseilDeClasseDate = uppercaseFirstChar(document.querySelector('div.help-block[ng-if="periode.dateConseil"]').textContent.replace('Conseil de classe le ','').trim())
+profile.nthTrimester = uppercaseFirstChar(document.querySelector('a[ng-click^=setSelectedPeriode]').textContent.trim().toLowerCase())
+switch (profile.nthTrimester) {
+    case "Premier trimestre":
+        profile.nthTrimester = 1
+        break;
+    case "Deuxieme trimestre":
+        profile.nthTrimester = 2
+        break;
+    case "Troisieme trimestre":
+        profile.nthTrimester = 3
+        break;
+
+    default:
+        break;
+}
 
 function sanitizeGrade(str) {
     return str.replace(/<!--(.*?)-->/gi, '').replace(/ng-if=".+"/gi, '').replace(/<sup class="coef" +>\(([\d.]+)\)<\/sup>/gi, '^$1').replace(/<sub class="quotien" +>\/([\d.]+)<\/sub>/gi, '_$1').replace(/ +/gi, '').replace(',', '.')
@@ -112,9 +158,8 @@ function getWeightFromSubjectElement(ele) {
 function getSubjectName(ele) {
     return ele.querySelector('.nommatiere b').innerHTML.replace(/\.$/gi, '').replace(/&amp;/gi, '&')
 }
-
-function show() {
-    console.table(data)
+function getSubjectTeacherName(ele) {
+    return ele.textContent.replace(getSubjectName(ele),'').replace(/^\./gi,'')
 }
 
 function getSubSubjectParent(ele) {
@@ -124,6 +169,14 @@ function getSubSubjectParent(ele) {
         return false;
     }
 }
+
+function show() {
+    console.log('===GRADES===')
+    console.table(grades)
+    console.log('===PROFILE===')
+    console.table(profile)
+}
+
 
 function getAvg(values, weights) {
     //remove undefined values.
@@ -145,6 +198,10 @@ function getAvg(values, weights) {
         avg = false
     }
     return avg
+}
+
+function uppercaseFirstChar(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
 function sum(input) {
