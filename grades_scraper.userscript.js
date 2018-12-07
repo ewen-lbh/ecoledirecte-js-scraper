@@ -10,11 +10,11 @@
 /*
 grades.subject is subject names
 grades.subjectTeacher is subjects' teachers name
-grades.rawGrades is an array of all marks, for each subject
-grades.treatedGrades is an array of all marks, processed, for each subject
-grades.gradesWeights is an array of all marks' coefficients, for each subject
+grades.rawValues is an array of all marks, for each subject
+grades.values is an array of all marks, processed, for each subject
+grades.weights is an array of all marks' coefficients, for each subject
 grades.subjectWeight is subject coeficients
-grades.gradesDOMElements is subject name DOM element
+grades.DOMelements is subject name DOM element
 grades.subjectAvg is subject averages
 grades.globalAvg is the global average
 grades.isSubSubject is wether the subject is a subsubject, and its parent.
@@ -34,47 +34,47 @@ function main() {
     grades = {
         "subject" : null,
         "subjectTeacher" : null,
-        "rawGrades" : null,
-        "gradesTooltips" : null,
+        "rawValues" : null,
+        "tooltips" : null,
         "subjectWeight" : null,
         "subjectAvg" : null,
         "isSubSubject" : null,
-        "treatedGrades" : null,
-        "gradesWeights" : null,
-        "gradesDOMElements" : null,
+        "values" : null,
+        "weights" : null,
+        "DOMelements" : null,
         "globalAvg" : null
     }
     grades.subject = []
     grades.subjectTeacher = []
-    grades.gradesDOMElements = []
-    grades.gradesTooltips = []
-    grades.rawGrades = []
-    grades.treatedGrades = []
-    grades.gradesWeights = []
+    grades.DOMelements = []
+    grades.tooltips = []
+    grades.rawValues = []
+    grades.values = []
+    grades.weights = []
     grades.subjectWeight = []
     grades.subjectAvg = []
     grades.globalAvg = []
     grades.isSubSubject = []
     subjectsE = document.querySelectorAll('td.discipline')
     subjectsE.forEach(subjectE => {
-        grades.gradesDOMElements.push(subjectE)
+        grades.DOMelements.push(subjectE)
         grades.subject.push(getSubjectName(subjectE))
-        iterator = grades.gradesDOMElements.keys()
+        iterator = grades.DOMelements.keys()
         for (let key of iterator) {
-            grades.isSubSubject[key] = getSubSubjectParent(grades.gradesDOMElements[key])
+            grades.isSubSubject[key] = getSubSubjectParent(grades.DOMelements[key])
             if(!grades.isSubSubject[key]) {
-                grades.subjectTeacher[key] = getSubjectTeacherName(grades.gradesDOMElements[key])
+                grades.subjectTeacher[key] = getSubjectTeacherName(grades.DOMelements[key])
             } else {
                 grades.subjectTeacher[key] = '';
             }
             // console.log(grades.subject[key])
-            if (hasAnyGrades(grades.gradesDOMElements[key])) {
-                grades.subjectWeight[key] = getWeightFromSubjectElement(grades.gradesDOMElements[key])
-                grades.rawGrades[key] = getAllGradesFromSubjectElement(grades.gradesDOMElements[key])
-                grades.gradesTooltips[key] = getAllGradesPopupsFromSubjectElement(grades.gradesDOMElements[key])
-                grades.treatedGrades[key] = getAllTreatedGradesFromArray(grades.rawGrades[key])
-                grades.gradesWeights[key] = getAllGradesWeightsFromArray(grades.rawGrades[key])
-                grades.subjectAvg[key] = getAvg(grades.treatedGrades[key], grades.gradesWeights[key])
+            if (hasAnyGrades(grades.DOMelements[key])) {
+                grades.subjectWeight[key] = getWeightFromSubjectElement(grades.DOMelements[key])
+                grades.rawValues[key] = getAllGradesFromSubjectElement(grades.DOMelements[key])
+                grades.tooltips[key] = getAllGradesPopupsFromSubjectElement(grades.DOMelements[key])
+                grades.values[key] = getAllTreatedGradesFromArray(grades.rawValues[key])
+                grades.weights[key] = getAllGradesWeightsFromArray(grades.rawValues[key])
+                grades.subjectAvg[key] = getAvg(grades.values[key], grades.weights[key])
             }
         }
     });
