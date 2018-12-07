@@ -34,8 +34,8 @@ function main() {
         "name": null,
         "conseilDeClasseDate": null,
         "nthTrimester": null,
-        "id":parseInt(window.location.href.replace(/https:\/\/www\.ecoledirecte\.com\/Eleves\/(\d+)\/.+/gi, '$1')),
-        "baseURL":"/Eleves/"+profile.id
+        "id": null,
+        "baseURL": null,
     }
     grades = {
         "subject": null,
@@ -92,6 +92,9 @@ function main() {
     profile.activeTrimesterDOMElement = document.querySelector('li[ng-repeat="periode in periodes track by $index"].active')
     profile.nthTrimester = uppercaseFirstChar(document.querySelector('li[ng-repeat="periode in periodes track by $index"].active a[ng-click^=setSelectedPeriode]').textContent.trim().toLowerCase())
     profile.picture = document.querySelector('.ed-menu-image-wrapper .circular').style.background.replace(/\url\("(.+)\"\).+/gi, 'http:$1')
+    profile.id = parseInt(window.location.href.replace(/https:\/\/www\.ecoledirecte\.com\/Eleves\/(\d+)\/.+/gi, '$1'))
+    profile.baseURL = "/Eleves/" + profile.id
+
     switch (profile.nthTrimester) {
         case "Premier trimestre":
             profile.nthTrimester = 1
@@ -125,13 +128,14 @@ function getAllGradesFromSubjectElement(ele) {
     return returnarr
 }
 
-function build() {
+function buildPage() {
     document.body.style.background = 'none';
-
+    removeStyles();
     document.getElementById('header-part').style.display = 'none'
-    document.getElementById('header-part').insertAdjacentHTML('beforebegin', bannerRawHTML);
-    document.getElementById('header-part').insertAdjacentHTML('beforebegin', '<style>'+bannerRawCSS+'</style>');
 
+
+    document.getElementById('header-part').insertAdjacentHTML('beforebegin', bannerRawHTML);
+    document.getElementById('header-part').insertAdjacentHTML('beforebegin', '<style>' + bannerRawCSS + '</style>');
 }
 
 function getAllTreatedGradesFromArray(inputarr) {
@@ -284,6 +288,27 @@ function uppercaseFirstChar(str) {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
 }
 
+function removeStyles() {
+    el = document.getElementById('main-part')
+    el.removeAttribute('style');
+
+    if (el.childNodes.length > 0) {
+        for (var child in el.childNodes) {
+            /* filter element nodes only */
+            if (el.childNodes[child].nodeType == 1)
+                el.childNodes[child].removeAttribute('style')
+        }
+    }
+    var stylesheets = document.getElementsByTagName('link'), i, sheet;
+
+    for(i in stylesheets) {
+        sheet = stylesheets[i];
+
+        if(sheet.getAttribute('rel').toLowerCase() == 'stylesheet') 
+            sheet.parentNode.removeChild(sheet);
+    }
+}
+
 
 function sum(input) {
 
@@ -309,13 +334,13 @@ function emptyTrimester() {
 }
 
 function run() {
-    if(emptyTrimester()) {
+    if (emptyTrimester()) {
         alert('Ce trimestre ne possède aucune note!')
     } else {
         main()
         show()
-        if(confirm('Build ?')) {
-            build(bannerRawHTML)
+        if (confirm('Build ?')) {
+            buildPage()
         }
     }
 }
@@ -325,7 +350,7 @@ if (pageIsValid()) {
         run()
         // Select the node that will be observed for mutations (profile object isn't defined yet, so we use a querySelector )
         targetNode = document.querySelector('li[ng-repeat="periode in periodes track by $index"].active')
-    
+
         // Callback function to execute when mutations are observed
         callback = function (mutationsList, observer) {
             for (mutation of mutationsList) {
