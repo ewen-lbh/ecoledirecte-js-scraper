@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         ED Scraper
-// @namespace    https://ecoledirecte.com/*
-// @version      0.0.1
+// @namespace    http://tampermonkey.net/
+// @version      0.1
 // @description  Ecoledirecte scrapper
 // @author       Mx3
-// @match        http://ecoledirecte.com/*
+// @match        https://www.ecoledirecte.com/*
 // @grant        none
 // ==/UserScript==
 
@@ -83,6 +83,7 @@ function main() {
             break;
     }
     document.querySelector('div.help-block[ng-if="periode.dateConseil"]').innerHTML = summary('<br>')
+    alert(summary())
 }
 
 
