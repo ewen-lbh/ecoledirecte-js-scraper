@@ -9,23 +9,23 @@
 // ==/UserScript==
 
 function main() {
-    let profile = {
-        "name" : null,
-        "conseilDeClasseDate":null,
-        "nthTrimester":null,
+    profile = {
+        "name": null,
+        "conseilDeClasseDate": null,
+        "nthTrimester": null,
     }
-    let grades = {
-        "subject" : null,
-        "subjectTeacher" : null,
-        "rawValues" : null,
-        "tooltips" : null,
-        "subjectWeight" : null,
-        "subjectAvg" : null,
-        "isSubSubject" : null,
-        "values" : null,
-        "weights" : null,
-        "DOMelements" : null,
-        "globalAvg" : null
+    grades = {
+        "subject": null,
+        "subjectTeacher": null,
+        "rawValues": null,
+        "tooltips": null,
+        "subjectWeight": null,
+        "subjectAvg": null,
+        "isSubSubject": null,
+        "values": null,
+        "weights": null,
+        "DOMelements": null,
+        "globalAvg": null
     }
     grades.subject = []
     grades.subjectTeacher = []
@@ -38,14 +38,14 @@ function main() {
     grades.subjectAvg = []
     grades.globalAvg = []
     grades.isSubSubject = []
-    let subjectsE = document.querySelectorAll('td.discipline')
+    subjectsE = document.querySelectorAll('td.discipline')
     subjectsE.forEach(subjectE => {
         grades.DOMelements.push(subjectE)
         grades.subject.push(getSubjectName(subjectE))
-        let iterator = grades.DOMelements.keys()
-        for (let key of iterator) {
+        iterator = grades.DOMelements.keys()
+        for (key of iterator) {
             grades.isSubSubject[key] = getSubSubjectParent(grades.DOMelements[key])
-            if(!grades.isSubSubject[key]) {
+            if (!grades.isSubSubject[key]) {
                 grades.subjectTeacher[key] = getSubjectTeacherName(grades.DOMelements[key])
             } else {
                 grades.subjectTeacher[key] = '';
@@ -62,9 +62,9 @@ function main() {
         }
     });
     grades.globalAvg = getAvg(grades.subjectAvg, grades.subjectWeight)
-    
+
     profile.name = document.querySelector('a#user-account-link').text.trim()
-    profile.conseilDeClasseDate = uppercaseFirstChar(document.querySelector('div.help-block[ng-if="periode.dateConseil"]').textContent.replace('Conseil de classe le ','').trim())
+    profile.conseilDeClasseDate = uppercaseFirstChar(document.querySelector('div.help-block[ng-if="periode.dateConseil"]').textContent.replace('Conseil de classe le ', '').trim())
     profile.trimesterDOMElements = document.querySelectorAll('li[ng-repeat="periode in periodes track by $index"]')
     profile.activeTrimesterDOMElement = document.querySelector('li[ng-repeat="periode in periodes track by $index"].active')
     profile.nthTrimester = uppercaseFirstChar(document.querySelector('li[ng-repeat="periode in periodes track by $index"].active a[ng-click^=setSelectedPeriode]').textContent.trim().toLowerCase())
@@ -78,12 +78,12 @@ function main() {
         case "Troisieme trimestre":
             profile.nthTrimester = 3
             break;
-    
+
         default:
             break;
     }
     document.querySelector('div.help-block[ng-if="periode.dateConseil"]').innerHTML = summary('<br>')
-    alert(summary())
+    // alert(summary())
 }
 
 
@@ -92,8 +92,8 @@ function sanitizeGrade(str) {
 }
 
 function getAllGradesFromSubjectElement(ele) {
-    let returnarr = []
-    let e = ele.nextElementSibling.nextElementSibling.nextElementSibling.querySelectorAll('span.valeur')
+    returnarr = []
+    e = ele.nextElementSibling.nextElementSibling.nextElementSibling.querySelectorAll('span.valeur')
     e.forEach(se => {
         returnarr.push(sanitizeGrade(se.innerHTML))
     });
@@ -101,16 +101,16 @@ function getAllGradesFromSubjectElement(ele) {
 }
 
 function getAllTreatedGradesFromArray(inputarr) {
-    let arr = inputarr.slice(0) //creates a copy of the original array, preventing mutation
-    for (let k = 0; k < arr.length; k++) {
-        let currentGrade = arr[k]
+    arr = inputarr.slice(0) //creates a copy of the original array, preventing mutation
+    for (k = 0; k < arr.length; k++) {
+        currentGrade = arr[k]
         if (currentGrade.includes('^')) {
             value = currentGrade.replace(/^([\d.]+)\^([\d.]+)/gi, '$1')
             arr[k] = value
         }
         if (currentGrade.includes('_')) {
-            let value = currentGrade.replace(/^([\d.]+)_([\d.]+)/gi, '$1')
-            let under = currentGrade.replace(/^([\d.]+)_([\d.]+)/gi, '$2')
+            value = currentGrade.replace(/^([\d.]+)_([\d.]+)/gi, '$1')
+            under = currentGrade.replace(/^([\d.]+)_([\d.]+)/gi, '$2')
             arr[k] = value / under * 20
         }
         arr[k] = parseFloat(arr[k])
@@ -119,10 +119,10 @@ function getAllTreatedGradesFromArray(inputarr) {
 }
 
 function getAllGradesPopupsFromSubjectElement(ele) {
-    let returnarr = []
-    let e = ele.nextElementSibling.nextElementSibling.nextElementSibling.querySelectorAll('span[uib-tooltip]')
+    returnarr = []
+    e = ele.nextElementSibling.nextElementSibling.nextElementSibling.querySelectorAll('span[uib-tooltip]')
     e.forEach(se => {
-        if(se.hasAttribute('uib-tooltip')) {
+        if (se.hasAttribute('uib-tooltip')) {
             returnarr.push(se.attributes['uib-tooltip'].textContent)
         }
     });
@@ -134,15 +134,15 @@ function hasAnyGrades(ele) {
 }
 
 function getAllGradesWeightsFromArray(inputarr) {
-    let arr = inputarr.slice(0) //creates a copy of the original array, preventing mutation
+    arr = inputarr.slice(0) //creates a copy of the original array, preventing mutation
     //remove undefined values.
     arr.filter(function (el) {
         return el != null;
     });
-    for (let k = 0; k < arr.length; k++) {
-        let currentGrade = arr[k]
+    for (k = 0; k < arr.length; k++) {
+        currentGrade = arr[k]
         if (typeof currentGrade === "string" && currentGrade.includes('^')) {
-            let coef = currentGrade.replace(/^([\d.]+)\^([\d.]+)/gi, '$2')
+            coef = currentGrade.replace(/^([\d.]+)\^([\d.]+)/gi, '$2')
             arr[k] = coef
         } else {
             arr[k] = 1
@@ -163,26 +163,31 @@ function getSubjectName(ele) {
 function getGreatestCoefSubjectName() {
     return grades.subject[grades.subjectWeight.indexOf(getMax(grades.subjectWeight))]
 }
+
 function getSubjectTeacherName(ele) {
-    return ele.textContent.replace(getSubjectName(ele),'').replace(/^\./gi,'').trim()
+    return ele.textContent.replace(getSubjectName(ele), '').replace(/^\./gi, '').trim()
 }
 
 function getSubSubjectParent(ele) {
-    if(ele.classList.contains('sousmatiere')) {
+    if (ele.classList.contains('sousmatiere')) {
         return true;
     } else {
         return false;
     }
 }
 
+function getAvgFromSubjectName(str) {
+    return grades.subjectAvg[grades.subject.indexOf(str)]
+}
+
 function summary(newlineChar = '\n') {
-    return 'Vous êtes sur le trimestre n°'+profile.nthTrimester+', '+profile.name+'. Votre conseil de classe pour ce trimestre sera le '+profile.conseilDeClasseDate.toLowerCase()+'. Votre moyenne générale est de '+grades.globalAvg.toFixed(2)+'/20. Votre moyenne en '+getGreatestCoefSubjectName()+', matière la plus importante*, est de '+uppercaseFirstChar(getAvgFromSubjectName(getGreatestCoefSubjectName()).toFixed(1))+'/20.'+newlineChar+'*La matière la plus importante est la matière possédant le plus gros coefficient.'
+    return 'Vous êtes sur le trimestre n°' + profile.nthTrimester + ', ' + profile.name + '. Votre conseil de classe pour ce trimestre sera le ' + profile.conseilDeClasseDate.toLowerCase() + '. Votre moyenne générale est de ' + grades.globalAvg.toFixed(2) + '/20. Votre moyenne en ' + getGreatestCoefSubjectName() + ', matière la plus importante*, est de ' + uppercaseFirstChar(getAvgFromSubjectName(getGreatestCoefSubjectName()).toFixed(1)) + '/20.' + newlineChar + '*La matière la plus importante est la matière possédant le plus gros coefficient.'
 }
 
 function show() {
-    let isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+    isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
     // console.log('===PROFILE===')
-    if(!isFirefox) {
+    if (!isFirefox) {
         console.table(profile)
     } else {
         console.log('nthTrimester:')
@@ -193,7 +198,7 @@ function show() {
         console.log(profile.activeTrimesterDOMElement)
     }
     // console.log('===GRADES===')
-    if(!isFirefox) {
+    if (!isFirefox) {
         console.table(grades)
     } else {
         console.log('values:')
@@ -214,9 +219,9 @@ function getMax(arr) {
     arr = arr.filter(function (el) {
         return el != null;
     });
-    let max = arr[0]
+    max = arr[0]
     arr.forEach(e => {
-        if(e >= max) {
+        if (e >= max) {
             max = e
         }
     });
@@ -232,10 +237,10 @@ function getAvg(values, weights) {
     weights.filter(function (el) {
         return el != null;
     });
-    let avg = 0
+    avg = 0
     if (values.length > 0) {
-        let weightedValues = []
-        for (let i = 0; i < values.length; i++) {
+        weightedValues = []
+        for (i = 0; i < values.length; i++) {
             weightedValues.push(values[i] * weights[i])
         }
         avg = sum(weightedValues) / sum(weights);
@@ -249,21 +254,14 @@ function uppercaseFirstChar(str) {
     return str.toLowerCase().charAt(0).toUpperCase() + str.slice(1)
 }
 
-function getAvgFromSubjectName(str) {
-    return grades.subjectAvg[grades.subject.indexOf(str)]
-}
-
-function pageIsValid() {
-    return window.location.href.match(/https:\/\/www\.ecoledirecte\.com\/Eleves\/\d+\/Notes/gi)
-}
 
 function sum(input) {
 
     if (toString.call(input) !== "[object Array]")
         return false;
 
-    let total = 0;
-    for (let i = 0; i < input.length; i++) {
+    total = 0;
+    for (i = 0; i < input.length; i++) {
         if (isNaN(input[i])) {
             continue;
         }
@@ -272,28 +270,47 @@ function sum(input) {
     return total;
 }
 
-if(pageIsValid()) {
-    main()
-    show()
+function pageIsValid() {
+    return window.location.href.match(/https:\/\/www\.ecoledirecte\.com\/Eleves\/\d+\/Notes/gi)
+}
+
+function emptyTrimester() {
+    return document.querySelector('td.moyennegenerale-valeur').textContent.trim() === ''
+}
+
+function run() {
+    if(emptyTrimester()) {
+        alert('Ce trimestre ne possède aucune note!')
+    } else {
+        main()
+        show()
+    }
+}
+
+if (pageIsValid()) {
+    run()
     // Select the node that will be observed for mutations
-    let targetNode = profile.activeTrimesterDOMElement
+    targetNode = profile.activeTrimesterDOMElement
 
     // Callback function to execute when mutations are observed
-    let callback = function(mutationsList, observer) {
-        for(let mutation of mutationsList) {
+    callback = function (mutationsList, observer) {
+        for (mutation of mutationsList) {
             if (mutation.type == 'attributes' && mutation.attributeName === 'class' && !targetNode.classList.contains('active')) {
                 setTimeout(() => {
-                    main()
-                    show()
+                    run()
                 }, 1000);
             }
         }
     };
-    let observer = new MutationObserver(callback);
-    observer.observe(targetNode, { attributes: true, childList: true, subtree: true });
+    observer = new MutationObserver(callback);
+    observer.observe(targetNode, {
+        attributes: true,
+        childList: true,
+        subtree: true
+    });
 } else {
-    let gotoed = confirm('Veuillez aller sur ecoledirecte.com avec un compte élève, pages notes, et lancer le script. \nL\'URL doit ressembler à https://www.ecoledirecte.com/Eleves/12345/Notes. Cliquez sur confirmer pour aller sur ecoledirecte.com.')
-    if(gotoed) {
+    gotoed = confirm('Veuillez aller sur ecoledirecte.com avec un compte élève, pages notes, et lancer le script. \nL\'URL doit ressembler à https://www.ecoledirecte.com/Eleves/12345/Notes. Cliquez sur confirmer pour aller sur ecoledirecte.com.')
+    if (gotoed) {
         window.location.href = 'https://www.ecoledirecte.com/'
     }
 }
