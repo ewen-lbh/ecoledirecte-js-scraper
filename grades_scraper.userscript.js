@@ -7,24 +7,7 @@
 // @match        http://ecoledirecte.com/*
 // @grant        none
 // ==/UserScript==
-/*
-grades.subject is subject names
-grades.subjectTeacher is subjects' teachers name
-grades.rawValues is an array of all marks, for each subject
-grades.values is an array of all marks, processed, for each subject
-grades.weights is an array of all marks' coefficients, for each subject
-grades.subjectWeight is subject coeficients
-grades.DOMelements is subject name DOM element
-grades.subjectAvg is subject averages
-grades.globalAvg is the global average
-grades.isSubSubject is wether the subject is a subsubject, and its parent.
 
-profile.name is the student's name
-profile.class is the student's class (NOT IMPLEMENTED)
-profile.conseilDeClasseDate is the student's conseil de classe date
-raw is the grade object's trimester 
-
-*/
 function main() {
     profile = {
         "name" : null,
@@ -99,6 +82,7 @@ function main() {
         default:
             break;
     }
+    document.querySelector('div.help-block[ng-if="periode.dateConseil"]').innerHTML = summary('<br>')
 }
 
 
@@ -172,14 +156,14 @@ function getWeightFromSubjectElement(ele) {
 }
 
 function getSubjectName(ele) {
-    return ele.querySelector('.nommatiere b').innerHTML.replace(/\.$/gi, '').replace(/&amp;/gi, '&')
+    return ele.querySelector('.nommatiere b').innerHTML.replace(/\.$/gi, '').replace(/&amp;/gi, '&').trim()
 }
 
 function getGreatestCoefSubjectName() {
     return grades.subject[grades.subjectWeight.indexOf(getMax(grades.subjectWeight))]
 }
 function getSubjectTeacherName(ele) {
-    return ele.textContent.replace(getSubjectName(ele),'').replace(/^\./gi,'')
+    return ele.textContent.replace(getSubjectName(ele),'').replace(/^\./gi,'').trim()
 }
 
 function getSubSubjectParent(ele) {
@@ -188,6 +172,10 @@ function getSubSubjectParent(ele) {
     } else {
         return false;
     }
+}
+
+function summary(newlineChar = '\n') {
+    return 'Vous êtes sur le trimestre n°'+profile.nthTrimester+', '+profile.name+'. Votre conseil de classe pour ce trimestre sera le '+profile.conseilDeClasseDate.toLowerCase()+'. Votre moyenne générale est de '+grades.globalAvg.toFixed(2)+'/20. Votre moyenne en '+getGreatestCoefSubjectName()+', matière la plus importante*, est de '+uppercaseFirstChar(getAvgFromSubjectName(getGreatestCoefSubjectName()).toFixed(1))+'/20.'+newlineChar+'*La matière la plus importante est la matière possédant le plus gros coefficient.'
 }
 
 function show() {
@@ -218,7 +206,7 @@ function show() {
         console.log('globalAvg:')
         console.log(grades.globalAvg)
     }
-    console.log('Vous êtes sur le trimestre n°'+profile.nthTrimester+', '+profile.name+'. Votre conseil de classe pour ce trimestre sera le '+profile.conseilDeClasseDate.toLowerCase()+'. Votre moyenne générale est de '+grades.globalAvg.toFixed(2)+'/20. Votre moyenne en '+getGreatestCoefSubjectName()+', matière la plus importante*, est de '+getAvgFromSubjectName(getGreatestCoefSubjectName()).toFixed(1)+'/20.\n*La matière la plus importante est la matière possédant le plus gros coefficient.')
+    console.log(summary())
 }
 
 function getMax(arr) {
@@ -257,7 +245,7 @@ function getAvg(values, weights) {
 }
 
 function uppercaseFirstChar(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1)
+    return str.toLowerCase().charAt(0).toUpperCase() + str.slice(1)
 }
 
 function getAvgFromSubjectName(str) {
