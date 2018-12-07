@@ -9,12 +9,12 @@
 // ==/UserScript==
 
 function main() {
-    var profile = {
+    let profile = {
         "name" : null,
         "conseilDeClasseDate":null,
         "nthTrimester":null,
     }
-    var grades = {
+    let grades = {
         "subject" : null,
         "subjectTeacher" : null,
         "rawValues" : null,
@@ -38,11 +38,11 @@ function main() {
     grades.subjectAvg = []
     grades.globalAvg = []
     grades.isSubSubject = []
-    var subjectsE = document.querySelectorAll('td.discipline')
+    let subjectsE = document.querySelectorAll('td.discipline')
     subjectsE.forEach(subjectE => {
         grades.DOMelements.push(subjectE)
         grades.subject.push(getSubjectName(subjectE))
-        var iterator = grades.DOMelements.keys()
+        let iterator = grades.DOMelements.keys()
         for (let key of iterator) {
             grades.isSubSubject[key] = getSubSubjectParent(grades.DOMelements[key])
             if(!grades.isSubSubject[key]) {
@@ -91,8 +91,8 @@ function sanitizeGrade(str) {
 }
 
 function getAllGradesFromSubjectElement(ele) {
-    var returnarr = []
-    var e = ele.nextElementSibling.nextElementSibling.nextElementSibling.querySelectorAll('span.valeur')
+    let returnarr = []
+    let e = ele.nextElementSibling.nextElementSibling.nextElementSibling.querySelectorAll('span.valeur')
     e.forEach(se => {
         returnarr.push(sanitizeGrade(se.innerHTML))
     });
@@ -100,16 +100,16 @@ function getAllGradesFromSubjectElement(ele) {
 }
 
 function getAllTreatedGradesFromArray(inputarr) {
-    var arr = inputarr.slice(0) //creates a copy of the original array, preventing mutation
-    for (var k = 0; k < arr.length; k++) {
-        var currentGrade = arr[k]
+    let arr = inputarr.slice(0) //creates a copy of the original array, preventing mutation
+    for (let k = 0; k < arr.length; k++) {
+        let currentGrade = arr[k]
         if (currentGrade.includes('^')) {
             value = currentGrade.replace(/^([\d.]+)\^([\d.]+)/gi, '$1')
             arr[k] = value
         }
         if (currentGrade.includes('_')) {
-            var value = currentGrade.replace(/^([\d.]+)_([\d.]+)/gi, '$1')
-            var under = currentGrade.replace(/^([\d.]+)_([\d.]+)/gi, '$2')
+            let value = currentGrade.replace(/^([\d.]+)_([\d.]+)/gi, '$1')
+            let under = currentGrade.replace(/^([\d.]+)_([\d.]+)/gi, '$2')
             arr[k] = value / under * 20
         }
         arr[k] = parseFloat(arr[k])
@@ -118,8 +118,8 @@ function getAllTreatedGradesFromArray(inputarr) {
 }
 
 function getAllGradesPopupsFromSubjectElement(ele) {
-    var returnarr = []
-    var e = ele.nextElementSibling.nextElementSibling.nextElementSibling.querySelectorAll('span[uib-tooltip]')
+    let returnarr = []
+    let e = ele.nextElementSibling.nextElementSibling.nextElementSibling.querySelectorAll('span[uib-tooltip]')
     e.forEach(se => {
         if(se.hasAttribute('uib-tooltip')) {
             returnarr.push(se.attributes['uib-tooltip'].textContent)
@@ -133,15 +133,15 @@ function hasAnyGrades(ele) {
 }
 
 function getAllGradesWeightsFromArray(inputarr) {
-    var arr = inputarr.slice(0) //creates a copy of the original array, preventing mutation
+    let arr = inputarr.slice(0) //creates a copy of the original array, preventing mutation
     //remove undefined values.
     arr.filter(function (el) {
         return el != null;
     });
-    for (var k = 0; k < arr.length; k++) {
-        var currentGrade = arr[k]
+    for (let k = 0; k < arr.length; k++) {
+        let currentGrade = arr[k]
         if (typeof currentGrade === "string" && currentGrade.includes('^')) {
-            var coef = currentGrade.replace(/^([\d.]+)\^([\d.]+)/gi, '$2')
+            let coef = currentGrade.replace(/^([\d.]+)\^([\d.]+)/gi, '$2')
             arr[k] = coef
         } else {
             arr[k] = 1
@@ -179,7 +179,7 @@ function summary(newlineChar = '\n') {
 }
 
 function show() {
-    var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+    let isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
     // console.log('===PROFILE===')
     if(!isFirefox) {
         console.table(profile)
@@ -213,7 +213,7 @@ function getMax(arr) {
     arr = arr.filter(function (el) {
         return el != null;
     });
-    var max = arr[0]
+    let max = arr[0]
     arr.forEach(e => {
         if(e >= max) {
             max = e
@@ -231,10 +231,10 @@ function getAvg(values, weights) {
     weights.filter(function (el) {
         return el != null;
     });
-    var avg = 0
+    let avg = 0
     if (values.length > 0) {
-        var weightedValues = []
-        for (var i = 0; i < values.length; i++) {
+        let weightedValues = []
+        for (let i = 0; i < values.length; i++) {
             weightedValues.push(values[i] * weights[i])
         }
         avg = sum(weightedValues) / sum(weights);
@@ -261,8 +261,8 @@ function sum(input) {
     if (toString.call(input) !== "[object Array]")
         return false;
 
-    var total = 0;
-    for (var i = 0; i < input.length; i++) {
+    let total = 0;
+    for (let i = 0; i < input.length; i++) {
         if (isNaN(input[i])) {
             continue;
         }
@@ -275,11 +275,11 @@ if(pageIsValid()) {
     main()
     show()
     // Select the node that will be observed for mutations
-    var targetNode = profile.activeTrimesterDOMElement
+    let targetNode = profile.activeTrimesterDOMElement
 
     // Callback function to execute when mutations are observed
-    var callback = function(mutationsList, observer) {
-        for(var mutation of mutationsList) {
+    let callback = function(mutationsList, observer) {
+        for(let mutation of mutationsList) {
             if (mutation.type == 'attributes' && mutation.attributeName === 'class' && !targetNode.classList.contains('active')) {
                 setTimeout(() => {
                     main()
@@ -288,10 +288,10 @@ if(pageIsValid()) {
             }
         }
     };
-    var observer = new MutationObserver(callback);
+    let observer = new MutationObserver(callback);
     observer.observe(targetNode, { attributes: true, childList: true, subtree: true });
 } else {
-    var gotoed = confirm('Veuillez aller sur ecoledirecte.com avec un compte élève, pages notes, et lancer le script. \nL\'URL doit ressembler à https://www.ecoledirecte.com/Eleves/12345/Notes. Cliquez sur confirmer pour aller sur ecoledirecte.com.')
+    let gotoed = confirm('Veuillez aller sur ecoledirecte.com avec un compte élève, pages notes, et lancer le script. \nL\'URL doit ressembler à https://www.ecoledirecte.com/Eleves/12345/Notes. Cliquez sur confirmer pour aller sur ecoledirecte.com.')
     if(gotoed) {
         window.location.href = 'https://www.ecoledirecte.com/'
     }
