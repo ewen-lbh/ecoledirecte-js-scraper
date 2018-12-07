@@ -72,11 +72,8 @@ function main() {
                 grades.subjectWeight[key] = getWeightFromSubjectElement(grades.gradesDOMElements[key])
                 grades.rawGrades[key] = getAllGradesFromSubjectElement(grades.gradesDOMElements[key])
                 grades.gradesPopups[key] = getAllGradesPopupsFromSubjectElement(grades.gradesDOMElements[key])
-                // console.log("After getAllGradesFromSubjectElement() : "+grades.rawGrades[key])
                 grades.treatedGrades[key] = getAllTreatedGradesFromArray(grades.rawGrades[key])
-                // console.log("After getAllTreatedGradesFromArray() : "+grades.rawGrades[key])
                 grades.gradesWeights[key] = getAllGradesWeightsFromArray(grades.rawGrades[key])
-                // console.log("After getAllGradesWeightsFromArray() : " + grades.rawGrades[key])
                 grades.subjectAvg[key] = getAvg(grades.treatedGrades[key], grades.gradesWeights[key])
             }
         }
@@ -105,7 +102,7 @@ function main() {
     
     
 }
-
+main()
 show()
 rerunOnClassChange(profile.activeTrimesterDOMElement)
 
@@ -145,9 +142,11 @@ function getAllTreatedGradesFromArray(inputarr) {
 
 function getAllGradesPopupsFromSubjectElement(ele) {
     returnarr = []
-    e = ele.nextElementSibling.nextElementSibling.nextElementSibling.querySelectorAll('span[uib-tootip]')
+    e = ele.nextElementSibling.nextElementSibling.nextElementSibling.querySelectorAll('span[uib-tooltip]')
     e.forEach(se => {
-        returnarr.push(sanitizeGrade(se.innerHTML))
+        if(se.hasAttribute('uib-tooltip')) {
+            returnarr.push(se.attributes['uib-tooltip'].textContent)
+        }
     });
     return returnarr
 }
