@@ -22,80 +22,95 @@ grades.isSubSubject is wether the subject is a subsubject, and its parent.
 profile.name is the student's name
 profile.class is the student's class (NOT IMPLEMENTED)
 profile.conseilDeClasseDate is the student's conseil de classe date
-profile.nthTrimester is the grade object's trimester 
+raw is the grade object's trimester 
 
 */
-profile = {
-    "name" : null,
-    "conseilDeClasseDate":null,
-    "nthTrimester":null,
-}
-grades = {
-    "subject" : null,
-    "subjectTeacher" : null,
-    "rawGrades" : null,
-    "subjectWeight" : null,
-    "subjectAvg" : null,
-    "isSubSubject" : null,
-    "treatedGrades" : null,
-    "gradesWeights" : null,
-    "gradesDOMElements" : null,
-    "globalAvg" : null
-}
-grades.subject = []
-grades.subjectTeacher = []
-grades.gradesDOMElements = []
-grades.rawGrades = []
-grades.treatedGrades = []
-grades.gradesWeights = []
-grades.subjectWeight = []
-grades.subjectAvg = []
-grades.globalAvg = []
-grades.isSubSubject = []
-subjectsE = document.querySelectorAll('td.discipline')
-subjectsE.forEach(subjectE => {
-    grades.gradesDOMElements.push(subjectE)
-    grades.subject.push(getSubjectName(subjectE))
-    iterator = grades.gradesDOMElements.keys()
-    for (let key of iterator) {
-        grades.isSubSubject[key] = getSubSubjectParent(grades.gradesDOMElements[key])
-        if(!grades.isSubSubject[key]) {
-            grades.subjectTeacher[key] = getSubjectTeacherName(grades.gradesDOMElements[key])
-        } else {
-            grades.subjectTeacher[key] = '';
-        }
-        // console.log(grades.subject[key])
-        if (hasAnyGrades(grades.gradesDOMElements[key])) {
-            grades.subjectWeight[key] = getWeightFromSubjectElement(grades.gradesDOMElements[key])
-            grades.rawGrades[key] = getAllGradesFromSubjectElement(grades.gradesDOMElements[key])
-            // console.log("After getAllGradesFromSubjectElement() : "+grades.rawGrades[key])
-            grades.treatedGrades[key] = getAllTreatedGradesFromArray(grades.rawGrades[key])
-            // console.log("After getAllTreatedGradesFromArray() : "+grades.rawGrades[key])
-            grades.gradesWeights[key] = getAllGradesWeightsFromArray(grades.rawGrades[key])
-            // console.log("After getAllGradesWeightsFromArray() : " + grades.rawGrades[key])
-            grades.subjectAvg[key] = getAvg(grades.treatedGrades[key], grades.gradesWeights[key])
-        }
+function main() {
+    profile = {
+        "name" : null,
+        "conseilDeClasseDate":null,
+        "nthTrimester":null,
     }
-});
-grades.globalAvg = getAvg(grades.subjectAvg, grades.subjectWeight)
-
-profile.name = document.querySelector('a#user-account-link').text.trim()
-profile.conseilDeClasseDate = uppercaseFirstChar(document.querySelector('div.help-block[ng-if="periode.dateConseil"]').textContent.replace('Conseil de classe le ','').trim())
-profile.nthTrimester = uppercaseFirstChar(document.querySelector('a[ng-click^=setSelectedPeriode]').textContent.trim().toLowerCase())
-switch (profile.nthTrimester) {
-    case "Premier trimestre":
-        profile.nthTrimester = 1
-        break;
-    case "Deuxieme trimestre":
-        profile.nthTrimester = 2
-        break;
-    case "Troisieme trimestre":
-        profile.nthTrimester = 3
-        break;
-
-    default:
-        break;
+    grades = {
+        "subject" : null,
+        "subjectTeacher" : null,
+        "rawGrades" : null,
+        "gradesPopups" : null,
+        "subjectWeight" : null,
+        "subjectAvg" : null,
+        "isSubSubject" : null,
+        "treatedGrades" : null,
+        "gradesWeights" : null,
+        "gradesDOMElements" : null,
+        "globalAvg" : null
+    }
+    grades.subject = []
+    grades.subjectTeacher = []
+    grades.gradesDOMElements = []
+    grades.gradesPopups = []
+    grades.rawGrades = []
+    grades.treatedGrades = []
+    grades.gradesWeights = []
+    grades.subjectWeight = []
+    grades.subjectAvg = []
+    grades.globalAvg = []
+    grades.isSubSubject = []
+    subjectsE = document.querySelectorAll('td.discipline')
+    subjectsE.forEach(subjectE => {
+        grades.gradesDOMElements.push(subjectE)
+        grades.subject.push(getSubjectName(subjectE))
+        iterator = grades.gradesDOMElements.keys()
+        for (let key of iterator) {
+            grades.isSubSubject[key] = getSubSubjectParent(grades.gradesDOMElements[key])
+            if(!grades.isSubSubject[key]) {
+                grades.subjectTeacher[key] = getSubjectTeacherName(grades.gradesDOMElements[key])
+            } else {
+                grades.subjectTeacher[key] = '';
+            }
+            // console.log(grades.subject[key])
+            if (hasAnyGrades(grades.gradesDOMElements[key])) {
+                grades.subjectWeight[key] = getWeightFromSubjectElement(grades.gradesDOMElements[key])
+                grades.rawGrades[key] = getAllGradesFromSubjectElement(grades.gradesDOMElements[key])
+                grades.gradesPopups[key] = getAllGradesPopupsFromSubjectElement(grades.gradesDOMElements[key])
+                // console.log("After getAllGradesFromSubjectElement() : "+grades.rawGrades[key])
+                grades.treatedGrades[key] = getAllTreatedGradesFromArray(grades.rawGrades[key])
+                // console.log("After getAllTreatedGradesFromArray() : "+grades.rawGrades[key])
+                grades.gradesWeights[key] = getAllGradesWeightsFromArray(grades.rawGrades[key])
+                // console.log("After getAllGradesWeightsFromArray() : " + grades.rawGrades[key])
+                grades.subjectAvg[key] = getAvg(grades.treatedGrades[key], grades.gradesWeights[key])
+            }
+        }
+    });
+    grades.globalAvg = getAvg(grades.subjectAvg, grades.subjectWeight)
+    
+    profile.name = document.querySelector('a#user-account-link').text.trim()
+    profile.conseilDeClasseDate = uppercaseFirstChar(document.querySelector('div.help-block[ng-if="periode.dateConseil"]').textContent.replace('Conseil de classe le ','').trim())
+    profile.trimesterDOMElements = document.querySelectorAll('li[ng-repeat="periode in periodes track by $index"]')
+    profile.activeTrimesterDOMElement = document.querySelector('li[ng-repeat="periode in periodes track by $index"].active')
+    profile.nthTrimester = uppercaseFirstChar(document.querySelector('li[ng-repeat="periode in periodes track by $index"].active a[ng-click^=setSelectedPeriode]').textContent.trim().toLowerCase())
+    switch (profile.nthTrimester) {
+        case "Premier trimestre":
+            profile.nthTrimester = 1
+            break;
+        case "Deuxieme trimestre":
+            profile.nthTrimester = 2
+            break;
+        case "Troisieme trimestre":
+            profile.nthTrimester = 3
+            break;
+    
+        default:
+            break;
+    }
+    
+    
 }
+
+show()
+rerunOnClassChange(profile.activeTrimesterDOMElement)
+
+
+
 
 function sanitizeGrade(str) {
     return str.replace(/<!--(.*?)-->/gi, '').replace(/ng-if=".+"/gi, '').replace(/<sup class="coef" +>\(([\d.]+)\)<\/sup>/gi, '^$1').replace(/<sub class="quotien" +>\/([\d.]+)<\/sub>/gi, '_$1').replace(/ +/gi, '').replace(',', '.')
@@ -126,6 +141,15 @@ function getAllTreatedGradesFromArray(inputarr) {
         arr[k] = parseFloat(arr[k])
     }
     return arr
+}
+
+function getAllGradesPopupsFromSubjectElement(ele) {
+    returnarr = []
+    e = ele.nextElementSibling.nextElementSibling.nextElementSibling.querySelectorAll('span[uib-tootip]')
+    e.forEach(se => {
+        returnarr.push(sanitizeGrade(se.innerHTML))
+    });
+    return returnarr
 }
 
 function hasAnyGrades(ele) {
@@ -171,10 +195,11 @@ function getSubSubjectParent(ele) {
 }
 
 function show() {
-    console.log('===GRADES===')
-    console.table(grades)
     console.log('===PROFILE===')
     console.table(profile)
+    console.log('===GRADES===')
+    console.table(grades)
+    console.log('Vous êtes sur le trimestre n°'+profile.nthTrimester)
 }
 
 
@@ -204,6 +229,17 @@ function uppercaseFirstChar(str) {
     return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
+function rerunOnClassChange(elem) {
+    var lastClassName = elem.className;
+    window.setInterval( function() {   
+       var className = elem.className;
+        if (className !== lastClassName) {
+            main();   
+            lastClassName = className;
+        }
+    },10);
+}
+
 function sum(input) {
 
     if (toString.call(input) !== "[object Array]")
@@ -218,5 +254,3 @@ function sum(input) {
     }
     return total;
 }
-
-show()
