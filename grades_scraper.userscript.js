@@ -8,11 +8,27 @@
 // @grant        none
 // ==/UserScript==
 
+
+/*
+TRUCS A HANDLE:
+Notes = {BASE}/Notes
+Devoirs = {BASE}/CahierDeTexte
+
+TRUCS A LINKER:
+Timeline = {BASE}
+Vie scolaire = {BASE}/VieScolaire
+Messages = {BASE}/Messagerie
+Cloud = 
+Workspace = /E/{ID}/EspacesTravail
+*/
+
 function main() {
     profile = {
         "name": null,
         "conseilDeClasseDate": null,
         "nthTrimester": null,
+        "id":parseInt(window.location.href.replace(/https:\/\/www\.ecoledirecte\.com\/Eleves\/(\d+)\/.+/gi, '$1')),
+        "baseURL":"/Eleves/"+profile.id
     }
     grades = {
         "subject": null,
@@ -82,7 +98,8 @@ function main() {
         default:
             break;
     }
-    document.querySelector('div.help-block[ng-if="periode.dateConseil"]').innerHTML = summary('<br>')
+    summary = 'Conseil de classe : ' + profile.conseilDeClasseDate + '<br> Moyenne générale : ' + grades.globalAvg.toFixed(2) + '/20 <br> Moyenne en ' + getGreatestCoefSubjectName() + ' : ' + uppercaseFirstChar(getAvgFromSubjectName(getGreatestCoefSubjectName()).toFixed(1)) + '/20'
+    document.querySelector('table.releve ~ p.help-block').innerHTML += summary;
     // alert(summary())
 }
 
@@ -98,6 +115,41 @@ function getAllGradesFromSubjectElement(ele) {
         returnarr.push(sanitizeGrade(se.innerHTML))
     });
     return returnarr
+}
+
+function build() {
+    document.body.style.background = 'none';
+
+    erd_root = document.createElement('div')
+    erd_root.className = '__erd-root'
+    erd_root.id = '__erd-root'
+    erd_root.style.height = '100vh'
+    erd_root.style.width = '100vw'
+    document.body.appendChild(erd_root)
+
+    // orig_root = document.createElement('div')
+    // orig_root.className = '__erd-scraped-data'
+    // orig_root.id = '__erd-scraped-data'
+    // orig_root.style.height = '100vh'
+    // orig_root.style.width = '100vw'
+    // document.body.appendChild(orig_root)
+
+    // document.querySelectorAll('*:not(.__erd-root)').forEach(element => {
+    //     element.remove()
+    //     document.getElementById('__erd-scraped-data').appendChild(element)
+    // })
+
+    // document.querySelectorAll('*:not(.__erd-root):not(#onglets-periodes)').forEach(element => {
+    //     element.style.display = 'none'
+    //     element.style.width = '0'
+    //     element.style.height = '0'
+    // })
+
+    // document.querySelector('.container-fluid.container-principal').style.display = 'none';
+
+    document.body.querySelector('.__erd-root').style.display = 'block'
+
+    erd_root.innerHTML = '<h1 style="font-size:200px;">lolz</h1>'
 }
 
 function getAllTreatedGradesFromArray(inputarr) {
@@ -180,10 +232,6 @@ function getAvgFromSubjectName(str) {
     return grades.subjectAvg[grades.subject.indexOf(str)]
 }
 
-function summary(newlineChar = '\n') {
-    return 'Vous êtes sur le trimestre n°' + profile.nthTrimester + ', ' + profile.name + '. Votre conseil de classe pour ce trimestre sera le ' + profile.conseilDeClasseDate.toLowerCase() + '. Votre moyenne générale est de ' + grades.globalAvg.toFixed(2) + '/20. Votre moyenne en ' + getGreatestCoefSubjectName() + ', matière la plus importante*, est de ' + uppercaseFirstChar(getAvgFromSubjectName(getGreatestCoefSubjectName()).toFixed(1)) + '/20.' + newlineChar + '*La matière la plus importante est la matière possédant le plus gros coefficient.'
-}
-
 function show() {
     isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
     // console.log('===PROFILE===')
@@ -212,7 +260,7 @@ function show() {
         console.log('globalAvg:')
         console.log(grades.globalAvg)
     }
-    console.log(summary())
+    console.log(summary)
 }
 
 function getMax(arr) {
@@ -251,7 +299,7 @@ function getAvg(values, weights) {
 }
 
 function uppercaseFirstChar(str) {
-    return str.toLowerCase().charAt(0).toUpperCase() + str.slice(1)
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
 }
 
 
@@ -288,26 +336,28 @@ function run() {
 }
 
 if (pageIsValid()) {
-    run()
-    // Select the node that will be observed for mutations
-    targetNode = profile.activeTrimesterDOMElement
-
-    // Callback function to execute when mutations are observed
-    callback = function (mutationsList, observer) {
-        for (mutation of mutationsList) {
-            if (mutation.type == 'attributes' && mutation.attributeName === 'class' && !targetNode.classList.contains('active')) {
-                setTimeout(() => {
-                    run()
-                }, 1000);
+    setTimeout(() => {
+        run()
+        // Select the node that will be observed for mutations (profile object isn't defined yet, so we use a querySelector )
+        targetNode = document.querySelector('li[ng-repeat="periode in periodes track by $index"].active')
+    
+        // Callback function to execute when mutations are observed
+        callback = function (mutationsList, observer) {
+            for (mutation of mutationsList) {
+                if (mutation.type == 'attributes' && mutation.attributeName === 'class' && !targetNode.classList.contains('active')) {
+                    setTimeout(() => {
+                        run()
+                    }, 1000);
+                }
             }
-        }
-    };
-    observer = new MutationObserver(callback);
-    observer.observe(targetNode, {
-        attributes: true,
-        childList: true,
-        subtree: true
-    });
+        };
+        observer = new MutationObserver(callback);
+        observer.observe(targetNode, {
+            attributes: true,
+            childList: true,
+            subtree: true
+        });
+    }, 2000);
 } else {
     gotoed = confirm('Veuillez aller sur ecoledirecte.com avec un compte élève, pages notes, et lancer le script. \nL\'URL doit ressembler à https://www.ecoledirecte.com/Eleves/12345/Notes. Cliquez sur confirmer pour aller sur ecoledirecte.com.')
     if (gotoed) {
