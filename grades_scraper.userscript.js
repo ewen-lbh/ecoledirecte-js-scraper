@@ -302,5 +302,5 @@ if(pageIsValid()) {
     show()
     startObserver()
 } else {
-    alert('Veuillez aller sur ecoledirecte.com avec un compte élève, pages notes, et lancer le script. \nL\'URL doit ressembler à https://www.ecoledirecte.com/Eleves/XXXXX/Notes, ou X est un nombre.')
+    alert('Veuillez aller sur ecoledirecte.com avec un compte élève, pages notes, et lancer le script. \nL\'URL doit ressembler à https://www.ecoledirecte.com/Eleves/12345/Notes.')
 }
