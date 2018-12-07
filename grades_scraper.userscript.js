@@ -35,7 +35,7 @@ function main() {
         "subject" : null,
         "subjectTeacher" : null,
         "rawGrades" : null,
-        "gradesPopups" : null,
+        "gradesTooltips" : null,
         "subjectWeight" : null,
         "subjectAvg" : null,
         "isSubSubject" : null,
@@ -47,7 +47,7 @@ function main() {
     grades.subject = []
     grades.subjectTeacher = []
     grades.gradesDOMElements = []
-    grades.gradesPopups = []
+    grades.gradesTooltips = []
     grades.rawGrades = []
     grades.treatedGrades = []
     grades.gradesWeights = []
@@ -71,7 +71,7 @@ function main() {
             if (hasAnyGrades(grades.gradesDOMElements[key])) {
                 grades.subjectWeight[key] = getWeightFromSubjectElement(grades.gradesDOMElements[key])
                 grades.rawGrades[key] = getAllGradesFromSubjectElement(grades.gradesDOMElements[key])
-                grades.gradesPopups[key] = getAllGradesPopupsFromSubjectElement(grades.gradesDOMElements[key])
+                grades.gradesTooltips[key] = getAllGradesPopupsFromSubjectElement(grades.gradesDOMElements[key])
                 grades.treatedGrades[key] = getAllTreatedGradesFromArray(grades.rawGrades[key])
                 grades.gradesWeights[key] = getAllGradesWeightsFromArray(grades.rawGrades[key])
                 grades.subjectAvg[key] = getAvg(grades.treatedGrades[key], grades.gradesWeights[key])
