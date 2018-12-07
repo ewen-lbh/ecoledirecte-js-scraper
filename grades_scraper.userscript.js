@@ -18,9 +18,16 @@ TRUCS A LINKER:
 Timeline = {BASE}
 Vie scolaire = {BASE}/VieScolaire
 Messages = {BASE}/Messagerie
-Cloud = 
+Cloud = {BASE}/MonCloud
 Workspace = /E/{ID}/EspacesTravail
+Logout = /logout
+About = /about
+Contact Etablissmement = /contactEtablissement
 */
+
+bannerRawHTML = ''
+bannerRawCSS = ''
+
 
 function main() {
     profile = {
@@ -84,6 +91,7 @@ function main() {
     profile.trimesterDOMElements = document.querySelectorAll('li[ng-repeat="periode in periodes track by $index"]')
     profile.activeTrimesterDOMElement = document.querySelector('li[ng-repeat="periode in periodes track by $index"].active')
     profile.nthTrimester = uppercaseFirstChar(document.querySelector('li[ng-repeat="periode in periodes track by $index"].active a[ng-click^=setSelectedPeriode]').textContent.trim().toLowerCase())
+    profile.picture = document.querySelector('.ed-menu-image-wrapper .circular').style.background.replace(/\url\("(.+)\"\).+/gi, 'http:$1')
     switch (profile.nthTrimester) {
         case "Premier trimestre":
             profile.nthTrimester = 1
@@ -120,36 +128,10 @@ function getAllGradesFromSubjectElement(ele) {
 function build() {
     document.body.style.background = 'none';
 
-    erd_root = document.createElement('div')
-    erd_root.className = '__erd-root'
-    erd_root.id = '__erd-root'
-    erd_root.style.height = '100vh'
-    erd_root.style.width = '100vw'
-    document.body.appendChild(erd_root)
+    document.getElementById('header-part').style.display = 'none'
+    document.getElementById('header-part').insertAdjacentHTML('beforebegin', bannerRawHTML);
+    document.getElementById('header-part').insertAdjacentHTML('beforebegin', '<style>'+bannerRawCSS+'</style>');
 
-    // orig_root = document.createElement('div')
-    // orig_root.className = '__erd-scraped-data'
-    // orig_root.id = '__erd-scraped-data'
-    // orig_root.style.height = '100vh'
-    // orig_root.style.width = '100vw'
-    // document.body.appendChild(orig_root)
-
-    // document.querySelectorAll('*:not(.__erd-root)').forEach(element => {
-    //     element.remove()
-    //     document.getElementById('__erd-scraped-data').appendChild(element)
-    // })
-
-    // document.querySelectorAll('*:not(.__erd-root):not(#onglets-periodes)').forEach(element => {
-    //     element.style.display = 'none'
-    //     element.style.width = '0'
-    //     element.style.height = '0'
-    // })
-
-    // document.querySelector('.container-fluid.container-principal').style.display = 'none';
-
-    document.body.querySelector('.__erd-root').style.display = 'block'
-
-    erd_root.innerHTML = '<h1 style="font-size:200px;">lolz</h1>'
 }
 
 function getAllTreatedGradesFromArray(inputarr) {
@@ -332,6 +314,9 @@ function run() {
     } else {
         main()
         show()
+        if(confirm('Build ?')) {
+            build(bannerRawHTML)
+        }
     }
 }
 
