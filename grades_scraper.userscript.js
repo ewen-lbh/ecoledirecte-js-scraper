@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        ED bot
+// @name         ED Scraper
 // @namespace    https://ecoledirecte.com/*
 // @version      0.0.1
 // @description  Ecoledirecte scrapper
@@ -9,12 +9,12 @@
 // ==/UserScript==
 
 function main() {
-    profile = {
+    var profile = {
         "name" : null,
         "conseilDeClasseDate":null,
         "nthTrimester":null,
     }
-    grades = {
+    var grades = {
         "subject" : null,
         "subjectTeacher" : null,
         "rawValues" : null,
@@ -38,11 +38,11 @@ function main() {
     grades.subjectAvg = []
     grades.globalAvg = []
     grades.isSubSubject = []
-    subjectsE = document.querySelectorAll('td.discipline')
+    var subjectsE = document.querySelectorAll('td.discipline')
     subjectsE.forEach(subjectE => {
         grades.DOMelements.push(subjectE)
         grades.subject.push(getSubjectName(subjectE))
-        iterator = grades.DOMelements.keys()
+        var iterator = grades.DOMelements.keys()
         for (let key of iterator) {
             grades.isSubSubject[key] = getSubSubjectParent(grades.DOMelements[key])
             if(!grades.isSubSubject[key]) {
@@ -91,8 +91,8 @@ function sanitizeGrade(str) {
 }
 
 function getAllGradesFromSubjectElement(ele) {
-    returnarr = []
-    e = ele.nextElementSibling.nextElementSibling.nextElementSibling.querySelectorAll('span.valeur')
+    var returnarr = []
+    var e = ele.nextElementSibling.nextElementSibling.nextElementSibling.querySelectorAll('span.valeur')
     e.forEach(se => {
         returnarr.push(sanitizeGrade(se.innerHTML))
     });
@@ -100,16 +100,16 @@ function getAllGradesFromSubjectElement(ele) {
 }
 
 function getAllTreatedGradesFromArray(inputarr) {
-    arr = inputarr.slice(0) //creates a copy of the original array, preventing mutation
+    var arr = inputarr.slice(0) //creates a copy of the original array, preventing mutation
     for (var k = 0; k < arr.length; k++) {
-        currentGrade = arr[k]
+        var currentGrade = arr[k]
         if (currentGrade.includes('^')) {
             value = currentGrade.replace(/^([\d.]+)\^([\d.]+)/gi, '$1')
             arr[k] = value
         }
         if (currentGrade.includes('_')) {
-            value = currentGrade.replace(/^([\d.]+)_([\d.]+)/gi, '$1')
-            under = currentGrade.replace(/^([\d.]+)_([\d.]+)/gi, '$2')
+            var value = currentGrade.replace(/^([\d.]+)_([\d.]+)/gi, '$1')
+            var under = currentGrade.replace(/^([\d.]+)_([\d.]+)/gi, '$2')
             arr[k] = value / under * 20
         }
         arr[k] = parseFloat(arr[k])
@@ -118,8 +118,8 @@ function getAllTreatedGradesFromArray(inputarr) {
 }
 
 function getAllGradesPopupsFromSubjectElement(ele) {
-    returnarr = []
-    e = ele.nextElementSibling.nextElementSibling.nextElementSibling.querySelectorAll('span[uib-tooltip]')
+    var returnarr = []
+    var e = ele.nextElementSibling.nextElementSibling.nextElementSibling.querySelectorAll('span[uib-tooltip]')
     e.forEach(se => {
         if(se.hasAttribute('uib-tooltip')) {
             returnarr.push(se.attributes['uib-tooltip'].textContent)
@@ -133,15 +133,15 @@ function hasAnyGrades(ele) {
 }
 
 function getAllGradesWeightsFromArray(inputarr) {
-    arr = inputarr.slice(0) //creates a copy of the original array, preventing mutation
+    var arr = inputarr.slice(0) //creates a copy of the original array, preventing mutation
     //remove undefined values.
     arr.filter(function (el) {
         return el != null;
     });
     for (var k = 0; k < arr.length; k++) {
-        currentGrade = arr[k]
+        var currentGrade = arr[k]
         if (typeof currentGrade === "string" && currentGrade.includes('^')) {
-            coef = currentGrade.replace(/^([\d.]+)\^([\d.]+)/gi, '$2')
+            var coef = currentGrade.replace(/^([\d.]+)\^([\d.]+)/gi, '$2')
             arr[k] = coef
         } else {
             arr[k] = 1
@@ -213,7 +213,7 @@ function getMax(arr) {
     arr = arr.filter(function (el) {
         return el != null;
     });
-    max = arr[0]
+    var max = arr[0]
     arr.forEach(e => {
         if(e >= max) {
             max = e
@@ -233,8 +233,8 @@ function getAvg(values, weights) {
     });
     var avg = 0
     if (values.length > 0) {
-        weightedValues = []
-        for (i = 0; i < values.length; i++) {
+        var weightedValues = []
+        for (var i = 0; i < values.length; i++) {
             weightedValues.push(values[i] * weights[i])
         }
         avg = sum(weightedValues) / sum(weights);
@@ -291,7 +291,7 @@ if(pageIsValid()) {
     var observer = new MutationObserver(callback);
     observer.observe(targetNode, { attributes: true, childList: true, subtree: true });
 } else {
-    gotoed = confirm('Veuillez aller sur ecoledirecte.com avec un compte élève, pages notes, et lancer le script. \nL\'URL doit ressembler à https://www.ecoledirecte.com/Eleves/12345/Notes. Cliquez sur confirmer pour aller sur ecoledirecte.com.')
+    var gotoed = confirm('Veuillez aller sur ecoledirecte.com avec un compte élève, pages notes, et lancer le script. \nL\'URL doit ressembler à https://www.ecoledirecte.com/Eleves/12345/Notes. Cliquez sur confirmer pour aller sur ecoledirecte.com.')
     if(gotoed) {
         window.location.href = 'https://www.ecoledirecte.com/'
     }
