@@ -174,6 +174,10 @@ function getWeightFromSubjectElement(ele) {
 function getSubjectName(ele) {
     return ele.querySelector('.nommatiere b').innerHTML.replace(/\.$/gi, '').replace(/&amp;/gi, '&')
 }
+
+function getGreatestCoefSubjectName() {
+    return grades.subject[grades.subjectWeight.indexOf(getMax(grades.subjectWeight))]
+}
 function getSubjectTeacherName(ele) {
     return ele.textContent.replace(getSubjectName(ele),'').replace(/^\./gi,'')
 }
@@ -188,7 +192,7 @@ function getSubSubjectParent(ele) {
 
 function show() {
     var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
-    console.log('===PROFILE===')
+    // console.log('===PROFILE===')
     if(!isFirefox) {
         console.table(profile)
     } else {
@@ -199,7 +203,7 @@ function show() {
         console.log('activeTrimesterDOMElement:')
         console.log(profile.activeTrimesterDOMElement)
     }
-    console.log('===GRADES===')
+    // console.log('===GRADES===')
     if(!isFirefox) {
         console.table(grades)
     } else {
@@ -214,32 +218,21 @@ function show() {
         console.log('globalAvg:')
         console.log(grades.globalAvg)
     }
-    console.log('Vous êtes sur le trimestre n°'+profile.nthTrimester)
+    console.log('Vous êtes sur le trimestre n°'+profile.nthTrimester+', '+profile.name+'. Votre conseil de classe pour ce trimestre sera le '+profile.conseilDeClasseDate.toLowerCase()+'. Votre moyenne générale est de '+grades.globalAvg.toFixed(2)+'/20. Votre moyenne en '+getGreatestCoefSubjectName()+', matière la plus importante*, est de '+getAvgFromSubjectName(getGreatestCoefSubjectName()).toFixed(1)+'/20.\n*La matière la plus importante est la matière possédant le plus gros coefficient.')
 }
 
-function startObserver() {    
-    // Select the node that will be observed for mutations
-    var targetNode = profile.activeTrimesterDOMElement
-
-    // Options for the observer (which mutations to observe)
-    var config = { attributes: true, childList: true, subtree: true };
-
-    // Callback function to execute when mutations are observed
-    var callback = function(mutationsList, observer) {
-        for(var mutation of mutationsList) {
-            if (mutation.type == 'attributes' && mutation.attributeName === 'class') {
-                console.log('jaaj');
-            }
+function getMax(arr) {
+    arr = arr.filter(function (el) {
+        return el != null;
+    });
+    max = arr[0]
+    arr.forEach(e => {
+        if(e >= max) {
+            max = e
         }
-    };
-
-    // Create an observer instance linked to the callback function
-    var observer = new MutationObserver(callback);
-
-    // Start observing the target node for configured mutations
-    observer.observe(targetNode, config);
+    });
+    return max
 }
-
 
 function getAvg(values, weights) {
     //remove undefined values.
@@ -267,15 +260,8 @@ function uppercaseFirstChar(str) {
     return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-function rerunOnClassChange(elem) {
-    var lastClassName = elem.className;
-    window.setInterval( function() {   
-       var className = elem.className;
-        if (className !== lastClassName) {
-            main();   
-            lastClassName = className;
-        }
-    },10);
+function getAvgFromSubjectName(str) {
+    return grades.subjectAvg[grades.subject.indexOf(str)]
 }
 
 function pageIsValid() {
@@ -300,7 +286,25 @@ function sum(input) {
 if(pageIsValid()) {
     main()
     show()
-    startObserver()
+    // Select the node that will be observed for mutations
+    var targetNode = profile.activeTrimesterDOMElement
+
+    // Callback function to execute when mutations are observed
+    var callback = function(mutationsList, observer) {
+        for(var mutation of mutationsList) {
+            if (mutation.type == 'attributes' && mutation.attributeName === 'class' && !targetNode.classList.contains('active')) {
+                setTimeout(() => {
+                    main()
+                    show()
+                }, 1000);
+            }
+        }
+    };
+    var observer = new MutationObserver(callback);
+    observer.observe(targetNode, { attributes: true, childList: true, subtree: true });
 } else {
-    alert('Veuillez aller sur ecoledirecte.com avec un compte élève, pages notes, et lancer le script. \nL\'URL doit ressembler à https://www.ecoledirecte.com/Eleves/12345/Notes.')
+    gotoed = confirm('Veuillez aller sur ecoledirecte.com avec un compte élève, pages notes, et lancer le script. \nL\'URL doit ressembler à https://www.ecoledirecte.com/Eleves/12345/Notes. Cliquez sur confirmer pour aller sur ecoledirecte.com.')
+    if(gotoed) {
+        window.location.href = 'https://www.ecoledirecte.com/'
+    }
 }
