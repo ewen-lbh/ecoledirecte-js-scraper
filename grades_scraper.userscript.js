@@ -99,11 +99,7 @@ function main() {
         default:
             break;
     }
-    
-    
 }
-main()
-show()
 
 
 function sanitizeGrade(str) {
@@ -221,6 +217,29 @@ function show() {
     console.log('Vous êtes sur le trimestre n°'+profile.nthTrimester)
 }
 
+function startObserver() {    
+    // Select the node that will be observed for mutations
+    var targetNode = profile.activeTrimesterDOMElement
+
+    // Options for the observer (which mutations to observe)
+    var config = { attributes: true, childList: true, subtree: true };
+
+    // Callback function to execute when mutations are observed
+    var callback = function(mutationsList, observer) {
+        for(var mutation of mutationsList) {
+            if (mutation.type == 'attributes' && mutation.attributeName === 'class') {
+                console.log('jaaj');
+            }
+        }
+    };
+
+    // Create an observer instance linked to the callback function
+    var observer = new MutationObserver(callback);
+
+    // Start observing the target node for configured mutations
+    observer.observe(targetNode, config);
+}
+
 
 function getAvg(values, weights) {
     //remove undefined values.
@@ -259,6 +278,10 @@ function rerunOnClassChange(elem) {
     },10);
 }
 
+function pageIsValid() {
+    return window.location.href.match(/https:\/\/www\.ecoledirecte\.com\/Eleves\/\d+\/Notes/gi)
+}
+
 function sum(input) {
 
     if (toString.call(input) !== "[object Array]")
@@ -274,26 +297,10 @@ function sum(input) {
     return total;
 }
 
-// Select the node that will be observed for mutations
-var targetNode = profile.activeTrimesterDOMElement
-
-// Options for the observer (which mutations to observe)
-var config = { attributes: true, childList: true, subtree: true };
-
-// Callback function to execute when mutations are observed
-var callback = function(mutationsList, observer) {
-    for(var mutation of mutationsList) {
-        if (mutation.type == 'attributes') {
-            console.log('The ' + mutation.attributeName + ' attribute was modified.');
-        }
-    }
-};
-
-// Create an observer instance linked to the callback function
-var observer = new MutationObserver(callback);
-
-// Start observing the target node for configured mutations
-observer.observe(targetNode, config);
-
-// Later, you can stop observing
-// observer.disconnect();
+if(pageIsValid()) {
+    main()
+    show()
+    startObserver()
+} else {
+    alert('Veuillez aller sur ecoledirecte.com avec un compte élève, pages notes, et lancer le script. \nL\'URL doit ressembler à https://www.ecoledirecte.com/Eleves/XXXXX/Notes, ou X est un nombre.')
+}
